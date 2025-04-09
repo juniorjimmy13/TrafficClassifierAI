@@ -13,7 +13,7 @@ class_names = ["Congested", "Uncongested"]  # Replace with your actual class lab
 st.set_page_config(page_title="Image Classifier", layout="centered")
 
 # Custom title style
-st.markdown("<h1 style='text-align: center; color: #4CAF50;'>🧠 Traffic Image Classifier</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #4CAF50;'>Traffic Image Classifier</h1>", unsafe_allow_html=True)
 st.write("Upload an image below to see its predicted class using our Traffic Classifier Deep Learning model.")
 
 # File uploader
