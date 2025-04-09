@@ -3,6 +3,8 @@ import numpy as np
 from PIL import Image
 from tensorflow import keras
 
+CONFIDENCE_THRESHOLD = 0.7  # or 0.6 depending on your needs
+
 # Load model
 model = keras.models.load_model("model.keras")
 
@@ -33,11 +35,13 @@ if uploaded_file is not None:
 
     with st.spinner("🔍 Analyzing image..."):
         processed = preprocess_image(image)
-        prediction = model.predict(processed)[0]
-        predicted_index = np.argmin(prediction)
-        predicted_class = class_names[predicted_index]
-        confidence = float(prediction[predicted_index]) * 100
+        prediction = model.predict(processed)[0][0]  # scalar value
 
-    st.success(f"✅ Prediction: **{predicted_class}**")
-    st.progress(min(int(confidence), 100))
-    st.write(f"🧪 Confidence: **{confidence:.2f}%**")
+CONFIDENCE_THRESHOLD = 0.7  # adjust to your preference
+
+if prediction >= CONFIDENCE_THRESHOLD:
+    st.success(f"✅ Prediction: Congested ({prediction * 100:.2f}% confidence)")
+elif prediction <= 1 - CONFIDENCE_THRESHOLD:
+    st.success(f"✅ Prediction: Clear ({(1 - prediction) * 100:.2f}% confidence)")
+else:
+    st.warning(f"⚠️ Uncertain ({prediction * 100:.2f}% confidence)")
