@@ -37,11 +37,11 @@ if uploaded_file is not None:
         processed = preprocess_image(image)
         prediction = model.predict(processed)[0][0]  # scalar value
 
-CONFIDENCE_THRESHOLD = 0.7  # adjust to your preference
+    CONFIDENCE_THRESHOLD = 0.7 
 
-if prediction >= CONFIDENCE_THRESHOLD:
-    st.success(f"✅ Prediction: Congested ({prediction * 100:.2f}% confidence)")
-elif prediction <= 1 - CONFIDENCE_THRESHOLD:
-    st.success(f"✅ Prediction: Clear ({(1 - prediction) * 100:.2f}% confidence)")
-else:
-    st.warning(f"⚠️ Uncertain ({prediction * 100:.2f}% confidence)")
+    if prediction >= CONFIDENCE_THRESHOLD:
+        st.success(f"✅ Prediction: Congested ({prediction * 100:.2f}% confidence)")
+    elif prediction <= 1 - CONFIDENCE_THRESHOLD:
+        st.success(f"✅ Prediction: Clear ({(1 - prediction) * 100:.2f}% confidence)")
+    else:
+        st.warning(f"⚠️ Uncertain ({prediction * 100:.2f}% confidence)")
