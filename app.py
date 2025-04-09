@@ -6,9 +6,9 @@ from tensorflow import keras
 # Load your model
 model = keras.models.load_model("model.keras")
 
-# Preprocessing function (adjust to your model's expected input)
+# Preprocessing function 
 def preprocess_image(image: Image.Image):
-    image = image.resize((224, 224))  # or your model's input size
+    image = image.resize((224, 224)) 
     image_array = np.array(image) / 255.0  # Normalize
     image_array = np.expand_dims(image_array, axis=0)  # Add batch dimension
     return image_array
