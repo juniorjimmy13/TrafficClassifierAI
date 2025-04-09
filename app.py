@@ -1,15 +1,20 @@
 import streamlit as st
 import numpy as np
+import keras
 from PIL import Image
 from tensorflow import keras
+from keras.applications import MobileNetV2
+from keras.applications.mobilenet_v2 import preprocess_input
 
 CONFIDENCE_THRESHOLD = 0.7  # or 0.6 depending on your needs
 
 # Load model
 model = keras.models.load_model("model.keras")
 
+IMG_SIZE = (224, 224)
+
 # Class names
-class_names = ["Congested", "Uncongested"]  # Replace with your actual class labels
+class_names = ["Congested", "Uncongested"] 
 
 # Set page config
 st.set_page_config(page_title="Image Classifier", layout="centered")
@@ -21,12 +26,15 @@ st.write("Upload an image below to see its predicted class using our Traffic Cla
 # File uploader
 uploaded_file = st.file_uploader("📷 Upload an Image", type=["jpg", "jpeg", "png"])
 
-# Image preprocessing
-def preprocess_image(image):
-    image = image.resize((224, 224))
-    image_array = np.array(image) / 255.0
-    image_array = np.expand_dims(image_array, axis=0)
-    return image_array
+# Preprocessing image manually before passing to model
+def preprocess_image(image: Image.Image):
+    img = image
+    img = img.resize(IMG_SIZE)
+    img_array = img_array = np.array(img)
+    img_array = np.expand_dims(img_array, axis=0)
+    img_array = preprocess_input(img_array)  
+    return img_array
+
 
 # Prediction logic
 if uploaded_file is not None:
@@ -34,14 +42,21 @@ if uploaded_file is not None:
     st.image(image, caption="Uploaded Image", use_column_width=True)
 
     with st.spinner("🔍 Analyzing image..."):
-        processed = preprocess_image(image)
-        prediction = model.predict(processed)[0][0]  # scalar value
+        
+        img_array = preprocess_image(image)
+        prediction = model.predict(img_array)  
+        prediction = prediction[0][0] * 100
 
-    CONFIDENCE_THRESHOLD = 0.7 
 
+    # Define threshold 
+    CONFIDENCE_THRESHOLD = 0.5
+
+    # Interpret result
     if prediction >= CONFIDENCE_THRESHOLD:
-        st.success(f"✅ Prediction: Congested ({prediction * 100:.2f}% confidence)")
-    elif prediction <= 1 - CONFIDENCE_THRESHOLD:
-        st.success(f"✅ Prediction: Clear ({(1 - prediction) * 100:.2f}% confidence)")
+        st.markdown(f"<h3 style='color:red;'>🚗 Congested</h3>", unsafe_allow_html=True)
+
+    elif prediction <= (1 - CONFIDENCE_THRESHOLD):
+        st.markdown(f"<h3 style='color:green;'>✅ Clear </h3>", unsafe_allow_html=True)
+
     else:
-        st.warning(f"⚠️ Uncertain ({prediction * 100:.2f}% confidence)")
+        st.markdown(f"<h3 style='color:orange;'>⚠️ Uncertain ({prediction * 100:.2f}% congested confidence)</h3>", unsafe_allow_html=True)
